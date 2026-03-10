@@ -3,306 +3,348 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CODEVAR PRO | Homestech</title>
+    <title>CODEVAR PRO | Quản lý thông minh</title>
     
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#1e293b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="CODEVAR">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1055/1055683.png">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     
-    <style>
-        :root {
-            --primary: #3b82f6; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --border: #e2e8f0; --danger: #ef4444; --success: #22c55e;
-        }
-        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { margin: 0; background-color: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
-        /* Sidebar */
-        .sidebar { width: 260px; background: #1e293b; color: white; display: flex; flex-direction: column; padding: 20px; position: fixed; height: 100vh; transition: 0.3s; z-index: 1000; }
+    <style>
+        :root { --primary: #3b82f6; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --border: #e2e8f0; --danger: #ef4444; --success: #10b981; }
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; background-color: var(--bg); color: var(--text); display: flex; min-height: 100vh; padding-bottom: 80px; }
+
+        /* NAVIGATION */
+        .sidebar { width: 260px; background: #1e293b; color: white; display: flex; flex-direction: column; padding: 20px; position: fixed; height: 100vh; z-index: 1000; }
         .sidebar h2 { color: var(--primary); font-size: 1.2rem; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
-        .nav-link { padding: 12px; color: #94a3b8; text-decoration: none; border-radius: 8px; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-size: 0.9rem; }
+        .nav-link { padding: 12px; color: #94a3b8; text-decoration: none; border-radius: 8px; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; cursor: pointer; border: none; background: none; width: 100%; text-align: left; transition: 0.2s; }
         .nav-link.active { background: rgba(255,255,255,0.1); color: white; }
+
+        .bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #1e293b; justify-content: space-around; padding: 10px 0; z-index: 2000; border-top: 1px solid rgba(255,255,255,0.1); padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+        .nav-item { color: #94a3b8; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; border: none; background: none; flex: 1; cursor: pointer; }
+        .nav-item.active { color: var(--primary); }
 
         .main-content { margin-left: 260px; flex: 1; padding: 30px; width: calc(100% - 260px); }
         .page-section { display: none; }
         .page-section.active { display: block; animation: fadeIn 0.3s ease; }
-
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Stats & Cards */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .stat-card { background: white; padding: 18px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .stat-card small { color: #64748b; font-size: 0.8rem; font-weight: 500; }
-        .stat-card span { font-size: 1.4rem; font-weight: 700; display: block; margin-top: 5px; }
-
-        .glass-card { background: white; border-radius: 16px; border: 1px solid var(--border); padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        /* UI ELEMENTS */
+        .glass-card { background: white; border-radius: 16px; border: 1px solid var(--border); padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         .grid-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 15px; }
         .input-wrapper { display: flex; flex-direction: column; gap: 5px; }
-        label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
-        input { padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; width: 100%; outline: none; transition: 0.2s; }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        label { font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
+        input { padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 16px; width: 100%; outline: none; transition: 0.2s; }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        
+        .btn { padding: 12px 20px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; justify-content: center; transition: 0.2s; }
+        .btn-primary { background: var(--primary); color: white; width: 100%; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3); }
+        .btn-success { background: var(--success); color: white; width: 100%; }
+        .btn-danger { background: #fee2e2; color: var(--danger); font-size: 0.75rem; }
+        .btn-edit { background: #f1f5f9; color: var(--text); font-size: 0.75rem; }
 
-        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
-        .btn { padding: 10px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-danger { background: #fee2e2; color: var(--danger); }
-        .btn-edit { background: #f1f5f9; color: var(--text); }
+        /* CUSTOMER CARDS GRID */
+        .customer-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; }
+        .cust-card { background: white; border-radius: 16px; border: 1px solid var(--border); padding: 18px; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .cust-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .cust-name { font-weight: 700; color: var(--text); font-size: 1.05rem; }
+        .cust-phone-link { font-size: 0.85rem; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 5px; margin-top: 4px; font-weight: 500; }
+        .cust-info-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.8rem; border-bottom: 1px dashed #f1f5f9; padding-bottom: 8px; }
+        .cust-value { font-weight: 600; }
+        .license-area { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-family: monospace; font-size: 0.7rem; width: 100%; resize: none; color: var(--text); margin-top: 8px; }
+        .badge { padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.7rem; }
 
-        /* Table Responsive */
-        .license-container { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #f8fafc; padding: 15px; text-align: left; font-size: 0.7rem; text-transform: uppercase; color: #64748b; }
-        td { padding: 15px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .stat-card { background: white; padding: 15px; border-radius: 12px; border: 1px solid var(--border); }
+        .stat-card span { font-size: 1.2rem; font-weight: 700; display: block; margin-top: 4px; }
 
         @media (max-width: 768px) {
             .sidebar { display: none; }
+            .bottom-nav { display: flex; }
             .main-content { margin-left: 0; padding: 15px; width: 100%; }
-            table, thead, tbody, th, td, tr { display: block; }
-            thead tr { position: absolute; top: -9999px; left: -9999px; }
-            tr { margin-bottom: 15px; border: 1px solid var(--border); border-radius: 15px; padding: 10px; background: white; }
-            td { border: none; position: relative; padding-left: 45% !important; text-align: right; display: flex; align-items: center; justify-content: flex-end; min-height: 45px; }
-            td:before { content: attr(data-label); position: absolute; left: 12px; width: 40%; text-align: left; font-weight: 700; font-size: 0.75rem; color: #64748b; }
-            .btn-group { width: 100%; justify-content: space-between; margin-top: 10px; }
+            .customer-grid { grid-template-columns: 1fr; }
         }
-
-        .license-area { background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 8px; font-family: monospace; font-size: 0.7rem; width: 100%; resize: none; min-height: 40px; }
-        .badge-price { background: #fff7ed; color: #9a3412; padding: 4px 8px; border-radius: 6px; font-weight: 700; border: 1px solid #ffedd5; font-size: 0.8rem; }
-        .badge-date { background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
         <h2><i data-lucide="shield-check"></i> CODEVAR</h2>
-        <button class="nav-link active" onclick="showPage('dash')"><i data-lucide="layout-dashboard"></i> Dashboard</button>
-        <button class="nav-link" onclick="showPage('cust')"><i data-lucide="users"></i> Khách hàng</button>
-        <button class="nav-link" onclick="showPage('conf')"><i data-lucide="settings"></i> Cấu hình</button>
+        <button class="nav-link active" onclick="showPage('dash', this)"><i data-lucide="key-round"></i> Tạo License</button>
+        <button class="nav-link" onclick="showPage('cust', this)"><i data-lucide="users"></i> Khách hàng</button>
+        <button class="nav-link" onclick="showPage('reports', this)"><i data-lucide="bar-chart-3"></i> Báo cáo</button>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-item active" onclick="showPage('dash', this)"><i data-lucide="key-round"></i><span>Tạo Key</span></button>
+        <button class="nav-item" onclick="showPage('cust', this)"><i data-lucide="users"></i><span>Khách</span></button>
+        <button class="nav-item" onclick="showPage('reports', this)"><i data-lucide="bar-chart-3"></i><span>Báo cáo</span></button>
     </div>
 
     <div class="main-content">
+        
         <div id="page-dash" class="page-section active">
-            <div class="stats-grid">
-                <div class="stat-card"><small>Tổng License</small><span id="totalKeys">0</span></div>
-                <div class="stat-card"><small>Doanh thu</small><span id="totalRevenue" style="color:var(--primary)">0đ</span></div>
-            </div>
-
             <div class="glass-card">
-                <h3 id="formTitle" style="margin-top:0">Cấp License mới</h3>
+                <h3 id="formTitle" style="margin:0 0 20px 0">Cấp License mới</h3>
                 <div class="grid-inputs">
                     <input type="hidden" id="editId">
-                    <div class="input-wrapper"><label>Khách hàng</label><input type="text" id="custName" placeholder="Tên khách"></div>
-                    <div class="input-wrapper"><label>SĐT</label><input type="tel" id="custPhone" placeholder="09xx"></div>
+                    <div class="input-wrapper"><label>Tên Khách hàng</label><input type="text" id="custName" placeholder="Tên khách..."></div>
+                    <div class="input-wrapper"><label>Số điện thoại</label><input type="tel" id="custPhone" placeholder="09xxx"></div>
                     <div class="input-wrapper"><label>Giá (VNĐ)</label><input type="number" id="priceInput" placeholder="500000"></div>
-                    <div class="input-wrapper"><label>Ngày</label><input type="number" id="daysInput" value="30"></div>
+                    <div class="input-wrapper"><label>Thời hạn (Ngày)</label><input type="number" id="daysInput" value="30"></div>
                 </div>
-                <div class="input-wrapper" style="margin-bottom:15px">
-                    <label>HWID</label><input type="text" id="hwidInput" placeholder="Dán HWID khách gửi">
+                <div class="input-wrapper" style="margin-bottom:20px">
+                    <label>Hardware ID (HWID)</label><input type="text" id="hwidInput" placeholder="Dán HWID từ máy khách...">
                 </div>
-                <div class="btn-group">
-                    <button class="btn btn-primary" id="btnSubmit" onclick="handleSubmit()"><i data-lucide="zap"></i> TẠO LICENSE </button>
-                    <button class="btn btn-edit" id="btnCancel" style="display:none" onclick="resetForm()">HỦY BỎ</button>
-                </div>
+                
+                <button class="btn btn-primary" id="btnSubmit" onclick="handleSubmit()">
+                    <i data-lucide="shield-check"></i> XÁC NHẬN TẠO KEY
+                </button>
+                <button class="btn btn-edit" id="btnCancel" style="display:none; width:100%; margin-top:10px" onclick="resetForm()">HỦY CHỈNH SỬA</button>
             </div>
 
-            <div style="margin-bottom:15px">
-                <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="🔍 Tìm khách hàng hoặc SĐT..." style="border-radius:25px; padding:12px 20px; border:2px solid var(--primary)">
-            </div>
-
-            <div class="license-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Khách hàng</th>
-                            <th>Thông tin</th>
-                            <th>License Key</th>
-                            <th>Hết hạn</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="licenseBody"></tbody>
-                </table>
+            <div id="resultArea" style="display:none;" class="glass-card">
+                <label style="color:var(--success); font-weight:800; font-size:0.7rem;">✅ KEY VỪA TẠO THÀNH CÔNG:</label>
+                <textarea id="lastGeneratedKey" class="license-area" style="margin-top:10px; height:80px; border-color:var(--success)" readonly></textarea>
+                <button class="btn btn-success" style="margin-top:10px" onclick="copyResult()">
+                    <i data-lucide="copy"></i> SAO CHÉP KEY NÀY
+                </button>
             </div>
         </div>
 
         <div id="page-cust" class="page-section">
-            <div class="glass-card"><h3>Danh sách Khách hàng</h3><p>Đang đồng bộ dữ liệu...</p></div>
+            <div class="glass-card" style="margin-bottom: 15px; padding: 15px;">
+                <div style="position: relative;">
+                    <i data-lucide="search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; color: #94a3b8;"></i>
+                    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Tìm tên hoặc SĐT..." style="padding: 10px 10px 10px 40px; border-radius: 12px; border: 1px solid var(--border); width: 100%; font-size: 15px;">
+                </div>
+            </div>
+            <div id="customerGrid" class="customer-grid"></div>
         </div>
 
-        <div id="page-conf" class="page-section">
-            <div class="glass-card"><h3>Cấu hình PWA</h3><p>Trạng thái: Ứng dụng đã sẵn sàng chạy Offline.</p></div>
+        <div id="page-reports" class="page-section">
+            <div class="stats-grid">
+                <div class="stat-card"><small>Tổng License</small><span id="totalKeys">0</span></div>
+                <div class="stat-card"><small>Doanh thu</small><span id="totalRevenue" style="color:var(--primary)">0đ</span></div>
+                <div class="stat-card"><small>Sắp hết hạn</small><span id="expiringSoonCount" style="color:var(--danger)">0</span></div>
+            </div>
+            <div class="glass-card"><h4>Doanh thu 6 tháng gần nhất</h4><canvas id="revenueChart"></canvas></div>
+            <div class="glass-card"><h4>Trạng thái bản quyền</h4><canvas id="statusChart"></canvas></div>
         </div>
     </div>
 
     <script>
-        lucide.createIcons();
+        const firebaseConfig = {
+            apiKey: "AIzaSyBWFaeofSN-4NuSSaCNhGiSJde8Jtkbfx4",
+            authDomain: "varcode-1996f.firebaseapp.com",
+            projectId: "varcode-1996f",
+            databaseURL: "https://varcode-1996f-default-rtdb.asia-southeast1.firebasedatabase.app",
+            storageBucket: "varcode-1996f.firebasestorage.app",
+            messagingSenderId: "472822583813",
+            appId: "1:472822583813:web:d40eda8adec1999a96826c"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const licenseRef = db.ref('licenses');
+
+        const SECRET_SALT = "VAR_PRO_HOMESTECH_2026";
         let allLicenses = [];
+        let revenueChart, statusChart;
 
-        // ĐĂNG KÝ SERVICE WORKER CHO PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW fail', err));
-            });
+        lucide.createIcons();
+
+        licenseRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            allLicenses = data ? Object.keys(data).map(key => ({ _id: key, ...data[key] })) : [];
+            allLicenses.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            renderCustomerCards(allLicenses);
+            updateGlobalStats();
+        });
+
+        function generateLicenseLocally(hwid, days) {
+            const futureDate = new Date();
+            futureDate.setDate(futureDate.getDate() + parseInt(days));
+            const y = futureDate.getFullYear(), m = String(futureDate.getMonth() + 1).padStart(2, '0'), d = String(futureDate.getDate()).padStart(2, '0');
+            const expiryStr = `${y}${m}${d}`;
+            const hash = CryptoJS.MD5(hwid + expiryStr + SECRET_SALT).toString().substring(0, 8);
+            return {
+                license: btoa(`${hwid}|${expiryStr}|${hash}`),
+                expiry: `${d}/${m}/${y}`,
+                expRaw: `${y}-${m}-${d}`
+            };
         }
-
-        function showPage(page) {
-            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-            document.getElementById('page-' + page).classList.add('active');
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-        }
-
-        function formatMoney(amount) {
-            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0);
-        }
-
-        async function loadLicenses() {
-            const res = await fetch('/api/licenses');
-            allLicenses = await res.json();
-            document.getElementById('totalKeys').innerText = allLicenses.length;
-            const revenue = allLicenses.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
-            document.getElementById('totalRevenue').innerText = formatMoney(revenue);
-            renderTable(allLicenses);
-        }
-
-        // Tìm hàm renderTable trong index.html và thay thế bằng đoạn này:
-function renderTable(data) {
-    const tbody = document.getElementById('licenseBody');
-    const today = new Date();
-    
-    tbody.innerHTML = data.map(d => {
-        // Tính toán cảnh báo hết hạn
-        const expDate = new Date(d.expiry.split('/').reverse().join('-'));
-        const diffTime = expDate - today;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        let statusStyle = "background: #dcfce7; color: #166534;"; // Mặc định: Xanh
-        if (diffDays <= 0) statusStyle = "background: #fee2e2; color: #991b1b; border: 1px solid #f87171;"; // Hết hạn: Đỏ
-        else if (diffDays <= 3) statusStyle = "background: #fff7ed; color: #9a3412; border: 1px solid #fb923c;"; // Sắp hết hạn: Cam
-
-        return `
-            <tr>
-                <td data-label="KHÁCH">
-                    <div style="font-weight:700">${d.customer}</div>
-                    <div style="font-size:0.65rem; color:#94a3b8">HWID: ${d.hwid.substring(0,10)}...</div>
-                </td>
-                <td data-label="THÔNG TIN">
-                    <div style="font-weight:600">📞 ${d.phone || '---'}</div>
-                    <div class="badge-price">${formatMoney(d.price)}</div>
-                </td>
-                <td data-label="LICENSE">
-                    <textarea class="license-area" readonly id="key-${d._id}">${d.license}</textarea>
-                </td>
-                <td data-label="HẾT HẠN">
-                    <span class="badge-date" style="${statusStyle}">${d.expiry} ${diffDays <= 3 ? (diffDays <= 0 ? ' (Hết hạn)' : ' (Sắp hết)') : ''}</span>
-                </td>
-                <td data-label="THAO TÁC">
-                    <div class="btn-group">
-                        <button class="btn btn-primary" style="padding:8px" onclick="copyToClipboard('key-${d._id}')">COPY</button>
-                        <button class="btn btn-edit" style="padding:8px" onclick="editLicense('${d._id}')">SỬA</button>
-                        <button class="btn btn-danger" style="padding:8px" onclick="deleteLicense('${d._id}')">XÓA</button>
-                    </div>
-                </td>
-            </tr>
-        `;
-    }).join('');
-}
-
-// Cập nhật hàm editLicense để ẩn/hiện nút Lưu
-function editLicense(id) {
-    const item = allLicenses.find(l => l._id === id);
-    document.getElementById('formTitle').innerText = "📝 CHỈNH SỬA LICENSE";
-    document.getElementById('editId').value = id;
-    document.getElementById('custName').value = item.customer;
-    document.getElementById('custPhone').value = item.phone;
-    document.getElementById('priceInput').value = item.price;
-    document.getElementById('hwidInput').value = item.hwid;
-    
-    // Thay đổi nút
-    document.getElementById('btnSubmit').innerHTML = '<i data-lucide="save"></i> LƯU THAY ĐỔI';
-    document.getElementById('btnSubmit').style.background = "#10b981"; // Màu xanh lá
-    document.getElementById('btnCancel').style.display = "flex";
-    
-    lucide.createIcons();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// Cập nhật resetForm để hiện lại nút Tạo
-function resetForm() {
-    document.getElementById('formTitle').innerText = "Cấp License mới";
-    document.getElementById('editId').value = "";
-    ['custName', 'custPhone', 'priceInput', 'hwidInput'].forEach(i => document.getElementById(i).value = "");
-    
-    document.getElementById('btnSubmit').innerHTML = '<i data-lucide="zap"></i> TẠO LICENSE';
-    document.getElementById('btnSubmit').style.background = "#3b82f6"; // Màu xanh dương gốc
-    document.getElementById('btnCancel').style.display = "none";
-    lucide.createIcons();
-}
 
         async function handleSubmit() {
             const id = document.getElementById('editId').value;
+            const hwid = document.getElementById('hwidInput').value;
+            const name = document.getElementById('custName').value;
+            if(!hwid || !name) return alert("Vui lòng nhập Tên và HWID!");
+
+            const res = generateLicenseLocally(hwid, document.getElementById('daysInput').value);
+            const now = new Date();
             const data = {
-                customerName: document.getElementById('custName').value,
-                phone: document.getElementById('custPhone').value,
-                price: document.getElementById('priceInput').value,
-                hwid: document.getElementById('hwidInput').value,
-                days: document.getElementById('daysInput').value
+                customer: name,
+                phone: document.getElementById('custPhone').value || "---",
+                price: Number(document.getElementById('priceInput').value) || 0,
+                hwid: hwid,
+                license: res.license,
+                expiry: res.expiry,
+                expirySort: res.expRaw,
+                createdMonth: now.getMonth() + 1,
+                createdYear: now.getFullYear(),
+                createdAt: now.toISOString()
             };
-            if(!data.hwid || !data.customerName) return alert("Nhập đủ Tên và HWID!");
 
-            const url = id ? `/api/update-license/${id}` : '/api/generate-license';
-            const method = id ? 'PUT' : 'POST';
-
-            await fetch(url, {
-                method: method,
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data)
-            });
+            if(id) {
+                await db.ref('licenses/' + id).update(data);
+                alert("Đã cập nhật!");
+                showPage('cust');
+            } else {
+                await licenseRef.push(data);
+                document.getElementById('resultArea').style.display = "block";
+                document.getElementById('lastGeneratedKey').value = res.license;
+            }
             resetForm();
-            loadLicenses();
         }
+
+        function renderCustomerCards(data) {
+            const grid = document.getElementById('customerGrid');
+            const today = new Date();
+            if (data.length === 0) { grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; color:#94a3b8">Chưa có dữ liệu</div>`; return; }
+
+            grid.innerHTML = data.map(d => {
+                const expDate = new Date(d.expiry.split('/').reverse().join('-'));
+                const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+                let badge = { s: "background:#dcfce7;color:#166534", t: "Hoạt động" };
+                if (diffDays <= 0) badge = { s: "background:#fee2e2;color:#991b1b", t: "Hết hạn" };
+                else if (diffDays <= 3) badge = { s: "background:#fff7ed;color:#9a3412", t: "Sắp hết" };
+
+                return `
+                    <div class="cust-card">
+                        <div class="cust-header">
+                            <div>
+                                <div class="cust-name">${d.customer}</div>
+                                <a href="tel:${d.phone}" class="cust-phone-link"><i data-lucide="phone" style="width:14px"></i> ${d.phone}</a>
+                                <a href="https://zalo.me/${d.phone.replace(/[^0-9]/g,'')}" target="_blank" style="font-size:0.7rem; color:#0068ff; text-decoration:none; margin-top:4px; display:inline-block; font-weight:600">Nhắn Zalo</a>
+                            </div>
+                            <span class="badge" style="${badge.s}">${badge.t}</span>
+                        </div>
+                        <div class="cust-info-row"><span style="color:#94a3b8">Hết hạn:</span><span class="cust-value">${d.expiry}</span></div>
+                        <div class="cust-info-row"><span style="color:#94a3b8">Thanh toán:</span><span class="cust-value" style="color:var(--primary)">${Number(d.price).toLocaleString()}đ</span></div>
+                        <textarea class="license-area" readonly onclick="this.select()" style="height:40px">${d.license}</textarea>
+                        <div style="display:flex; gap:8px; margin-top:15px">
+                            <button class="btn btn-primary" style="flex:2; padding:8px" onclick="copyText('${d.license}')"><i data-lucide="copy" style="width:14px"></i> Sao chép</button>
+                            <button class="btn btn-edit" style="width:40px; padding:0" onclick="editLicense('${d._id}')"><i data-lucide="edit-2" style="width:16px"></i></button>
+                            <button class="btn btn-danger" style="width:40px; padding:0; background:#fff1f2" onclick="deleteLicense('${d._id}')"><i data-lucide="trash-2" style="width:16px"></i></button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function deleteLicense(id) { if(confirm("Xóa vĩnh viễn dữ liệu này?")) db.ref('licenses/' + id).remove(); }
 
         function editLicense(id) {
             const item = allLicenses.find(l => l._id === id);
-            document.getElementById('formTitle').innerText = "Chỉnh sửa License";
             document.getElementById('editId').value = id;
             document.getElementById('custName').value = item.customer;
             document.getElementById('custPhone').value = item.phone;
             document.getElementById('priceInput').value = item.price;
             document.getElementById('hwidInput').value = item.hwid;
-            document.getElementById('btnCancel').style.display = "flex";
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        async function deleteLicense(id) {
-            if(confirm("Xóa bản quyền này?")) {
-                await fetch(`/api/delete-license/${id}`, { method: 'DELETE' });
-                loadLicenses();
-            }
+            document.getElementById('formTitle').innerText = "📝 Chỉnh sửa thông tin";
+            document.getElementById('btnSubmit').innerText = "LƯU THAY ĐỔI";
+            document.getElementById('btnCancel').style.display = "block";
+            document.getElementById('resultArea').style.display = "none";
+            showPage('dash');
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
         function resetForm() {
-            document.getElementById('formTitle').innerText = "Cấp License mới";
             document.getElementById('editId').value = "";
             ['custName', 'custPhone', 'priceInput', 'hwidInput'].forEach(i => document.getElementById(i).value = "");
+            document.getElementById('formTitle').innerText = "Cấp License mới";
+            document.getElementById('btnSubmit').innerText = "XÁC NHẬN TẠO KEY";
             document.getElementById('btnCancel').style.display = "none";
         }
 
-        function copyToClipboard(id) {
-            const el = document.getElementById(id); el.select(); document.execCommand("copy"); alert("Đã Copy!");
+        function showPage(page, el) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + page).classList.add('active');
+            document.querySelectorAll('.nav-link, .nav-item').forEach(n => n.classList.remove('active'));
+            const s = [`.sidebar [onclick*="'${page}'"]`, `.bottom-nav [onclick*="'${page}'"]`].join(',');
+            document.querySelectorAll(s).forEach(n => n.classList.add('active'));
+            if(page === 'reports') updateCharts();
+            lucide.createIcons();
+        }
+
+        function updateGlobalStats() {
+            const rev = allLicenses.reduce((s, i) => s + (Number(i.price) || 0), 0);
+            document.getElementById('totalRevenue').innerText = rev.toLocaleString() + 'đ';
+            document.getElementById('totalKeys').innerText = allLicenses.length;
         }
 
         function filterTable() {
             const q = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allLicenses.filter(i => (i.customer||"").toLowerCase().includes(q) || (i.phone||"").toLowerCase().includes(q));
-            renderTable(filtered);
+            const filtered = allLicenses.filter(i => i.customer.toLowerCase().includes(q) || i.phone.includes(q));
+            renderCustomerCards(filtered);
         }
 
-        loadLicenses();
+        function copyText(t) { navigator.clipboard.writeText(t); alert("Đã sao chép vào bộ nhớ tạm!"); }
+        function copyResult() { copyText(document.getElementById('lastGeneratedKey').value); }
+
+        function updateCharts() {
+            const today = new Date();
+            let expSoon = 0, active = 0, expired = 0;
+            const monthlyRev = {};
+
+            allLicenses.forEach(d => {
+                const expDate = new Date(d.expiry.split('/').reverse().join('-'));
+                const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+                if (diffDays <= 0) expired++; else if (diffDays <= 3) expSoon++; else active++;
+                if(d.createdMonth) {
+                    const label = `${d.createdMonth}/${d.createdYear}`;
+                    monthlyRev[label] = (monthlyRev[label] || 0) + (Number(d.price) || 0);
+                }
+            });
+
+            document.getElementById('expiringSoonCount').innerText = expSoon;
+
+            if(statusChart) statusChart.destroy();
+            statusChart = new Chart(document.getElementById('statusChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Hoạt động', 'Sắp hết hạn', 'Hết hạn'],
+                    datasets: [{ data: [active, expSoon, expired], backgroundColor: ['#10b981', '#f59e0b', '#ef4444'] }]
+                },
+                options: { plugins: { legend: { position: 'bottom' } } }
+            });
+
+            const labels = Object.keys(monthlyRev).sort((a, b) => {
+                const [m1, y1] = a.split('/').map(Number), [m2, y2] = b.split('/').map(Number);
+                return y1 !== y2 ? y1 - y2 : m1 - m2;
+            });
+
+            if(revenueChart) revenueChart.destroy();
+            revenueChart = new Chart(document.getElementById('revenueChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{ label: 'VNĐ', data: labels.map(l => monthlyRev[l]), backgroundColor: '#3b82f6', borderRadius: 6 }]
+                },
+                options: { scales: { y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString() + 'đ' } } } }
+            });
+        }
     </script>
 </body>
 </html>
