@@ -2,260 +2,159 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CODEVAR | Advanced License Management</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CODEVAR PRO | Mobile Optimized</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
-            --bg-body: #f4f7fa;
-            --sidebar-bg: #1e293b;
             --primary: #3b82f6;
-            --primary-hover: #2563eb;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
             --border: #e2e8f0;
-            --success: #10b981;
         }
 
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { margin: 0; background-color: var(--bg-body); color: var(--text-main); display: flex; min-height: 100vh; }
+        body { margin: 0; background-color: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
 
-        /* Sidebar - Chỉ hiện trên Desktop */
-        .sidebar {
-            width: 260px;
-            background: var(--sidebar-bg);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            position: fixed;
-            height: 100vh;
-        }
+        /* Sidebar - Ẩn hoàn toàn trên mobile để lấy diện tích */
+        .sidebar { width: 260px; background: #1e293b; color: white; display: flex; flex-direction: column; padding: 20px; position: fixed; height: 100vh; }
+        .sidebar h2 { color: var(--primary); font-size: 1.2rem; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
+        .nav-link { padding: 12px; color: #94a3b8; text-decoration: none; border-radius: 8px; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; cursor: pointer; border: none; background: none; width: 100%; text-align: left; }
+        .nav-link.active { background: rgba(255,255,255,0.1); color: white; }
 
-        .sidebar h2 { 
-            font-size: 1.2rem; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            margin-bottom: 30px;
-            color: var(--primary);
-        }
+        .main-content { margin-left: 260px; flex: 1; padding: 30px; width: calc(100% - 260px); }
 
-        .nav-link {
-            padding: 12px;
-            color: #94a3b8;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-radius: 8px;
-            transition: all 0.3s;
-        }
+        /* Dashboard Elements */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: white; padding: 15px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .stat-card small { color: #64748b; font-size: 0.8rem; }
+        .stat-card span { font-size: 1.4rem; font-weight: 700; display: block; margin-top: 5px; }
 
-        .nav-link.active, .nav-link:hover {
-            background: rgba(255,255,255,0.1);
-            color: white;
-        }
+        .glass-card { background: white; border-radius: 16px; border: 1px solid var(--border); padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .grid-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        .input-wrapper { display: flex; flex-direction: column; gap: 5px; }
+        label { font-size: 0.8rem; font-weight: 600; color: #64748b; }
+        input { padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 16px; width: 100%; }
 
-        /* Main Content */
-        .main-content {
-            margin-left: 260px;
-            flex: 1;
-            padding: 40px;
-        }
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; }
 
-        @media (max-width: 992px) {
-            .sidebar { display: none; }
-            .main-content { margin-left: 0; padding: 20px; }
-        }
-
-        /* Stat Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .stat-card small { color: var(--text-muted); font-weight: 500; }
-        .stat-card span { font-size: 1.8rem; font-weight: 700; margin-top: 5px; }
-
-        /* Dashboard Card */
-        .glass-card {
-            background: white;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            padding: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-        }
-
-        .grid-inputs {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .input-wrapper { display: flex; flex-direction: column; gap: 8px; }
-        .input-wrapper label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
-        
-        input {
-            padding: 12px 16px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 0.95rem;
-            transition: border 0.3s;
-        }
-
-        input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: background 0.2s;
-        }
-
-        .btn-primary:hover { background: var(--primary-hover); }
-
-        /* Table Style */
-        .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 40px;
-            margin-bottom: 20px;
-        }
-
-        .search-container { position: relative; width: 300px; }
-        .search-container i { position: absolute; left: 12px; top: 12px; color: var(--text-muted); }
-        .search-container input { padding-left: 40px; width: 100%; border-radius: 20px; background: white; }
-
+        /* TABLE TO CARD RESPONSIVE */
+        .license-container { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
         table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 16px; border-bottom: 2px solid var(--border); color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; }
-        td { padding: 16px; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+        th { background: #f1f5f9; padding: 15px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; }
+        td { padding: 15px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
 
-        .badge-active { background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; }
-        
-        .license-area {
-            background: #f8fafc;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 8px;
-            width: 100%;
-            font-family: monospace;
-            font-size: 0.8rem;
-            resize: none;
+        /* BIẾN BẢNG THÀNH CARD TRÊN MOBILE */
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; padding: 15px; width: 100%; }
+            
+            table, thead, tbody, th, td, tr { display: block; }
+            thead tr { position: absolute; top: -9999px; left: -9999px; } /* Ẩn tiêu đề bảng */
+            
+            tr { 
+                margin-bottom: 15px; 
+                border: 1px solid var(--border); 
+                border-radius: 15px; 
+                background: white;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                padding: 10px;
+            }
+
+            td { 
+                border: none; 
+                position: relative; 
+                padding-left: 40% !important; 
+                text-align: right; 
+                min-height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+            }
+
+            td:before { 
+                content: attr(data-label); 
+                position: absolute; 
+                left: 15px; 
+                width: 35%; 
+                text-align: left; 
+                font-weight: 700; 
+                font-size: 0.8rem;
+                color: #64748b;
+            }
+
+            .license-area { height: 60px !important; margin-top: 5px; }
+            .btn-copy { width: 100% !important; margin-top: 10px; }
         }
+
+        .license-area { background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 8px; font-family: monospace; font-size: 0.75rem; width: 100%; resize: none; }
+        .badge-price { background: #fff7ed; color: #9a3412; padding: 4px 8px; border-radius: 6px; font-weight: 700; border: 1px solid #ffedd5; display: inline-block; }
+        .badge-date { background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <h2><i data-lucide="shield-check"></i> CODEVAR PRO</h2>
-        <nav style="display: flex; flex-direction: column; gap: 8px;">
-            <a href="#" class="nav-link active"><i data-lucide="layout-dashboard"></i> Dashboard</a>
-            <a href="#" class="nav-link"><i data-lucide="users"></i> Khách hàng</a>
-            <a href="#" class="nav-link"><i data-lucide="key"></i> Quản lý Key</a>
-            <a href="#" class="nav-link"><i data-lucide="settings"></i> Cấu hình</a>
-        </nav>
+        <h2><i data-lucide="shield-check"></i> CODEVAR</h2>
+        <button class="nav-link active"><i data-lucide="layout-dashboard"></i> Dashboard</button>
+        <button class="nav-link"><i data-lucide="users"></i> Khách hàng</button>
+        <button class="nav-link"><i data-lucide="settings"></i> Cấu hình</button>
     </div>
 
     <div class="main-content">
         <div class="stats-grid">
-            <div class="stat-card">
-                <small>Tổng License</small>
-                <span id="totalKeys">0</span>
-            </div>
-            <div class="stat-card">
-                <small>Đang hoạt động</small>
-                <span style="color: var(--success);" id="activeKeys">0</span>
-            </div>
-            <div class="stat-card">
-                <small>Doanh thu ước tính</small>
-                <span>$ --</span>
-            </div>
+            <div class="stat-card"><small>Tổng License</small><span id="totalKeys">0</span></div>
+            <div class="stat-card"><small>Doanh thu</small><span id="totalRevenue" style="color:var(--primary)">0đ</span></div>
         </div>
 
         <div class="glass-card">
-            <h3 style="margin-top:0; margin-bottom:20px;">Cấp bản quyền mới</h3>
+            <h3 style="margin-top:0">Cấp License mới</h3>
             <div class="grid-inputs">
-                <div class="input-wrapper">
-                    <label>Khách hàng</label>
-                    <input type="text" id="custName" placeholder="Tên khách hàng...">
-                </div>
-                <div class="input-wrapper">
-                    <label>Số điện thoại</label>
-                    <input type="text" id="custPhone" placeholder="090...">
-                </div>
-                <div class="input-wrapper">
-                    <label>Thời hạn (ngày)</label>
-                    <input type="number" id="daysInput" value="30">
-                </div>
+                <div class="input-wrapper"><label>Khách hàng</label><input type="text" id="custName" placeholder="Tên khách"></div>
+                <div class="input-wrapper"><label>SĐT</label><input type="tel" id="custPhone" placeholder="09xx"></div>
+                <div class="input-wrapper"><label>Giá (VNĐ)</label><input type="number" id="priceInput" placeholder="Ví dụ: 500000"></div>
+                <div class="input-wrapper"><label>Ngày</label><input type="number" id="daysInput" value="30"></div>
             </div>
-            <div class="input-wrapper" style="margin-bottom: 20px;">
-                <label>Hardware ID (HWID)</label>
-                <input type="text" id="hwidInput" placeholder="Dán HWID từ máy khách...">
+            <div class="input-wrapper" style="margin-bottom:15px">
+                <label>HWID</label><input type="text" id="hwidInput" placeholder="Dán HWID khách gửi">
             </div>
-            <button class="btn-primary" onclick="createLicense()">
-                <i data-lucide="plus-circle"></i> TẠO LICENSE NGAY
-            </button>
+            <button class="btn-primary" onclick="createLicense()"><i data-lucide="zap"></i> TẠO LICENSE</button>
         </div>
 
-        <div class="table-header">
-            <h3>Danh sách License</h3>
-            <div class="search-container">
-                <i data-lucide="search" size="18"></i>
-                <input type="text" id="searchInput" placeholder="Tìm tên, SĐT..." onkeyup="filterTable()">
-            </div>
-        </div>
+        <div style="margin-bottom:15px"><input type="text" id="searchInput" onkeyup="filterTable()" placeholder="🔍 Tìm khách hàng hoặc SĐT..." style="border-radius:25px; padding:12px 20px; border:2px solid var(--primary)"></div>
 
-        <div class="glass-card" style="padding: 0; overflow: hidden;">
-            <table id="licenseTable">
+        <div class="license-container">
+            <table>
                 <thead>
                     <tr>
                         <th>Khách hàng</th>
-                        <th>Thông tin liên hệ</th>
-                        <th>Mã bản quyền</th>
+                        <th>Thông tin</th>
+                        <th>License Key</th>
                         <th>Hết hạn</th>
-                        <th>Hành động</th>
+                        <th>Thao tác</th>
                     </tr>
                 </thead>
-                <tbody id="licenseBody">
-                    </tbody>
+                <tbody id="licenseBody"></tbody>
             </table>
         </div>
     </div>
 
     <script>
-        // Khởi tạo Icon
         lucide.createIcons();
-
         let allLicenses = [];
+
+        function formatMoney(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0);
+        }
 
         async function loadLicenses() {
             const res = await fetch('/api/licenses');
             allLicenses = await res.json();
             document.getElementById('totalKeys').innerText = allLicenses.length;
-            document.getElementById('activeKeys').innerText = allLicenses.length; // Giả định
+            const revenue = allLicenses.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+            document.getElementById('totalRevenue').innerText = formatMoney(revenue);
             renderTable(allLicenses);
         }
 
@@ -263,62 +162,49 @@
             const tbody = document.getElementById('licenseBody');
             tbody.innerHTML = data.map(d => `
                 <tr>
-                    <td>
-                        <div style="font-weight: 600;">${d.customer || 'N/A'}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">HWID: ${d.hwid.substring(0,15)}...</div>
+                    <td data-label="KHÁCH">
+                        <div style="font-weight:700">${d.customer}</div>
+                        <div style="font-size:0.7rem; color:#94a3b8">HWID: ${d.hwid.substring(0,10)}...</div>
                     </td>
-                    <td>
-                        <div>${d.phone || '---'}</div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">${d.address || ''}</div>
+                    <td data-label="GIÁ & SĐT">
+                        <div style="font-weight:600">📞 ${d.phone || '---'}</div>
+                        <div class="badge-price">${formatMoney(d.price)}</div>
                     </td>
-                    <td style="width: 250px;">
+                    <td data-label="LICENSE">
                         <textarea class="license-area" readonly id="key-${d._id}">${d.license}</textarea>
                     </td>
-                    <td><span class="badge-active">${d.expiry}</span></td>
-                    <td>
-                        <button class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="copyToClipboard('key-${d._id}')">
-                            Sao chép
-                        </button>
+                    <td data-label="HẾT HẠN">
+                        <span class="badge-date">${d.expiry}</span>
+                    </td>
+                    <td data-label="HÀNH ĐỘNG">
+                        <button class="btn-primary btn-copy" style="padding:8px; font-size:0.8rem" onclick="copyToClipboard('key-${d._id}')">COPY</button>
                     </td>
                 </tr>
             `).join('');
-        }
-
-        function filterTable() {
-            const q = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allLicenses.filter(i => 
-                (i.customer||"").toLowerCase().includes(q) || (i.phone||"").toLowerCase().includes(q)
-            );
-            renderTable(filtered);
         }
 
         async function createLicense() {
             const data = {
                 customerName: document.getElementById('custName').value,
                 phone: document.getElementById('custPhone').value,
+                price: document.getElementById('priceInput').value,
                 hwid: document.getElementById('hwidInput').value,
                 days: document.getElementById('daysInput').value
             };
-            if(!data.hwid || !data.customerName) return alert("Vui lòng điền đủ thông tin!");
-
-            await fetch('/api/generate-license', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data)
-            });
-            
-            // Xóa form
-            document.getElementById('custName').value = '';
-            document.getElementById('hwidInput').value = '';
+            if(!data.hwid || !data.customerName) return alert("Thiếu HWID!");
+            await fetch('/api/generate-license', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+            ['custName', 'custPhone', 'priceInput', 'hwidInput'].forEach(id => document.getElementById(id).value = '');
             loadLicenses();
         }
 
+        function filterTable() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allLicenses.filter(i => (i.customer||"").toLowerCase().includes(q) || (i.phone||"").toLowerCase().includes(q));
+            renderTable(filtered);
+        }
+
         function copyToClipboard(id) {
-            const el = document.getElementById(id);
-            el.select();
-            document.execCommand("copy");
-            // Hiệu ứng thông báo nhỏ có thể thêm ở đây
-            alert("Đã sao chép vào bộ nhớ tạm!");
+            const el = document.getElementById(id); el.select(); document.execCommand("copy"); alert("Đã Copy!");
         }
 
         loadLicenses();
