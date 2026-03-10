@@ -4,13 +4,13 @@ const crypto = require('crypto');
 const path = require('path');
 const app = express();
 
-const SECRET_SALT = "VAR_PRO_HOMESTECH_2026"; // Khớp với mã của bạn
+const SECRET_SALT = "VAR_PRO_HOMESTECH_2026"; 
 const db = new Datastore({ filename: path.join(__dirname, 'database/keys.db'), autoload: true });
 
 app.use(express.json());
 app.use(express.static('public'));
 
-// Hàm tạo Key theo HWID từ logic của bạn
+// Hàm tạo mã bản quyền (giữ nguyên logic của bạn)
 function generateLicense(hwid, days) {
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + parseInt(days));
@@ -29,9 +29,10 @@ function generateLicense(hwid, days) {
     };
 }
 
-// API: Tạo License dựa trên HWID khách gửi
+// API: Tạo License - ĐÃ CẬP NHẬT ĐỂ LẤY SĐT VÀ GIÁ
 app.post('/api/generate-license', (req, res) => {
-    const { hwid, days, customerName } = req.body;
+    // THÊM: phone và price vào đây để nhận dữ liệu từ HTML gửi lên
+    const { hwid, days, customerName, phone, price } = req.body;
     
     if (!hwid) return res.status(400).send("Thiếu HWID");
 
@@ -39,6 +40,8 @@ app.post('/api/generate-license', (req, res) => {
     
     const newDoc = {
         customer: customerName || "Khách lẻ",
+        phone: phone || "---",      // LƯU SỐ ĐIỆN THOẠI
+        price: Number(price) || 0, // LƯU GIÁ BÁN (chuyển về dạng số)
         hwid: hwid,
         license: result.licenseText,
         expiry: result.expiry,
@@ -46,13 +49,17 @@ app.post('/api/generate-license', (req, res) => {
     };
 
     db.insert(newDoc, (err, doc) => {
+        if (err) return res.status(500).json({ error: err.message });
         res.json(doc);
     });
 });
 
 app.get('/api/licenses', (req, res) => {
-    db.find({}).sort({ createdAt: -1 }).exec((err, docs) => res.json(docs));
+    db.find({}).sort({ createdAt: -1 }).exec((err, docs) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(docs);
+    });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log('Server is running...'));
+app.listen(PORT, () => console.log(`Server CODEVAR đang chạy trên cổng ${PORT}`));
