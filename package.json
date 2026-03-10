@@ -1,0 +1,12 @@
+{
+  "name": "codevar-manager",
+  "version": "1.0.0",
+  "main": "codevar.js",
+  "scripts": {
+    "start": "node codevar.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "nedb": "^1.8.0"
+  }
+}
