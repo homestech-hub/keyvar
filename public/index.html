@@ -4,8 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CODEVAR PRO | Homestech</title>
+    
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1e293b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CODEVAR">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1055/1055683.png">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
         :root {
             --primary: #3b82f6; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --border: #e2e8f0; --danger: #ef4444; --success: #22c55e;
@@ -26,7 +35,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Stats & Cards */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .stat-card { background: white; padding: 18px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .stat-card small { color: #64748b; font-size: 0.8rem; font-weight: 500; }
         .stat-card span { font-size: 1.4rem; font-weight: 700; display: block; margin-top: 5px; }
@@ -38,18 +47,16 @@
         input { padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; width: 100%; outline: none; transition: 0.2s; }
         input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
 
-        .btn-group { display: flex; gap: 8px; }
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
         .btn { padding: 10px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-danger { background: #fee2e2; color: var(--danger); }
-        .btn-danger:hover { background: var(--danger); color: white; }
         .btn-edit { background: #f1f5f9; color: var(--text); }
-        .btn-edit:hover { background: #e2e8f0; }
 
-        /* Table */
+        /* Table Responsive */
         .license-container { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
         table { width: 100%; border-collapse: collapse; }
-        th { background: #f8fafc; padding: 15px; text-align: left; font-size: 0.7rem; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; }
+        th { background: #f8fafc; padding: 15px; text-align: left; font-size: 0.7rem; text-transform: uppercase; color: #64748b; }
         td { padding: 15px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
 
         @media (max-width: 768px) {
@@ -65,6 +72,7 @@
 
         .license-area { background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 8px; font-family: monospace; font-size: 0.7rem; width: 100%; resize: none; min-height: 40px; }
         .badge-price { background: #fff7ed; color: #9a3412; padding: 4px 8px; border-radius: 6px; font-weight: 700; border: 1px solid #ffedd5; font-size: 0.8rem; }
+        .badge-date { background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -122,17 +130,24 @@
         </div>
 
         <div id="page-cust" class="page-section">
-            <div class="glass-card"><h3>Danh sách Khách hàng</h3><p>Tính năng đang đồng bộ từ License...</p></div>
+            <div class="glass-card"><h3>Danh sách Khách hàng</h3><p>Đang đồng bộ dữ liệu...</p></div>
         </div>
 
         <div id="page-conf" class="page-section">
-            <div class="glass-card"><h3>Cấu hình hệ thống</h3><p>Phiên bản: 2.0.0 (Mobile Pro)</p></div>
+            <div class="glass-card"><h3>Cấu hình PWA</h3><p>Trạng thái: Ứng dụng đã sẵn sàng chạy Offline.</p></div>
         </div>
     </div>
 
     <script>
         lucide.createIcons();
         let allLicenses = [];
+
+        // ĐĂNG KÝ SERVICE WORKER CHO PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW fail', err));
+            });
+        }
 
         function showPage(page) {
             document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
@@ -154,34 +169,79 @@
             renderTable(allLicenses);
         }
 
-        function renderTable(data) {
-            const tbody = document.getElementById('licenseBody');
-            tbody.innerHTML = data.map(d => `
-                <tr>
-                    <td data-label="KHÁCH">
-                        <div style="font-weight:700">${d.customer}</div>
-                        <div style="font-size:0.65rem; color:#94a3b8">ID: ${d._id}</div>
-                    </td>
-                    <td data-label="THÔNG TIN">
-                        <div style="font-weight:600">📞 ${d.phone || '---'}</div>
-                        <div class="badge-price">${formatMoney(d.price)}</div>
-                    </td>
-                    <td data-label="LICENSE">
-                        <textarea class="license-area" readonly id="key-${d._id}">${d.license}</textarea>
-                    </td>
-                    <td data-label="HẾT HẠN">
-                        <span class="badge-date">${d.expiry}</span>
-                    </td>
-                    <td data-label="THAO TÁC">
-                        <div class="btn-group">
-                            <button class="btn btn-primary" onclick="copyToClipboard('key-${d._id}')">COPY</button>
-                            <button class="btn btn-edit" onclick="editLicense('${d._id}')">SỬA</button>
-                            <button class="btn btn-danger" onclick="deleteLicense('${d._id}')">XÓA</button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-        }
+        // Tìm hàm renderTable trong index.html và thay thế bằng đoạn này:
+function renderTable(data) {
+    const tbody = document.getElementById('licenseBody');
+    const today = new Date();
+    
+    tbody.innerHTML = data.map(d => {
+        // Tính toán cảnh báo hết hạn
+        const expDate = new Date(d.expiry.split('/').reverse().join('-'));
+        const diffTime = expDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        let statusStyle = "background: #dcfce7; color: #166534;"; // Mặc định: Xanh
+        if (diffDays <= 0) statusStyle = "background: #fee2e2; color: #991b1b; border: 1px solid #f87171;"; // Hết hạn: Đỏ
+        else if (diffDays <= 3) statusStyle = "background: #fff7ed; color: #9a3412; border: 1px solid #fb923c;"; // Sắp hết hạn: Cam
+
+        return `
+            <tr>
+                <td data-label="KHÁCH">
+                    <div style="font-weight:700">${d.customer}</div>
+                    <div style="font-size:0.65rem; color:#94a3b8">HWID: ${d.hwid.substring(0,10)}...</div>
+                </td>
+                <td data-label="THÔNG TIN">
+                    <div style="font-weight:600">📞 ${d.phone || '---'}</div>
+                    <div class="badge-price">${formatMoney(d.price)}</div>
+                </td>
+                <td data-label="LICENSE">
+                    <textarea class="license-area" readonly id="key-${d._id}">${d.license}</textarea>
+                </td>
+                <td data-label="HẾT HẠN">
+                    <span class="badge-date" style="${statusStyle}">${d.expiry} ${diffDays <= 3 ? (diffDays <= 0 ? ' (Hết hạn)' : ' (Sắp hết)') : ''}</span>
+                </td>
+                <td data-label="THAO TÁC">
+                    <div class="btn-group">
+                        <button class="btn btn-primary" style="padding:8px" onclick="copyToClipboard('key-${d._id}')">COPY</button>
+                        <button class="btn btn-edit" style="padding:8px" onclick="editLicense('${d._id}')">SỬA</button>
+                        <button class="btn btn-danger" style="padding:8px" onclick="deleteLicense('${d._id}')">XÓA</button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Cập nhật hàm editLicense để ẩn/hiện nút Lưu
+function editLicense(id) {
+    const item = allLicenses.find(l => l._id === id);
+    document.getElementById('formTitle').innerText = "📝 CHỈNH SỬA LICENSE";
+    document.getElementById('editId').value = id;
+    document.getElementById('custName').value = item.customer;
+    document.getElementById('custPhone').value = item.phone;
+    document.getElementById('priceInput').value = item.price;
+    document.getElementById('hwidInput').value = item.hwid;
+    
+    // Thay đổi nút
+    document.getElementById('btnSubmit').innerHTML = '<i data-lucide="save"></i> LƯU THAY ĐỔI';
+    document.getElementById('btnSubmit').style.background = "#10b981"; // Màu xanh lá
+    document.getElementById('btnCancel').style.display = "flex";
+    
+    lucide.createIcons();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Cập nhật resetForm để hiện lại nút Tạo
+function resetForm() {
+    document.getElementById('formTitle').innerText = "Cấp License mới";
+    document.getElementById('editId').value = "";
+    ['custName', 'custPhone', 'priceInput', 'hwidInput'].forEach(i => document.getElementById(i).value = "");
+    
+    document.getElementById('btnSubmit').innerHTML = '<i data-lucide="zap"></i> TẠO LICENSE';
+    document.getElementById('btnSubmit').style.background = "#3b82f6"; // Màu xanh dương gốc
+    document.getElementById('btnCancel').style.display = "none";
+    lucide.createIcons();
+}
 
         async function handleSubmit() {
             const id = document.getElementById('editId').value;
@@ -192,8 +252,7 @@
                 hwid: document.getElementById('hwidInput').value,
                 days: document.getElementById('daysInput').value
             };
-
-            if(!data.hwid || !data.customerName) return alert("Nhập Tên và HWID!");
+            if(!data.hwid || !data.customerName) return alert("Nhập đủ Tên và HWID!");
 
             const url = id ? `/api/update-license/${id}` : '/api/generate-license';
             const method = id ? 'PUT' : 'POST';
@@ -203,7 +262,6 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(data)
             });
-            
             resetForm();
             loadLicenses();
         }
@@ -221,7 +279,7 @@
         }
 
         async function deleteLicense(id) {
-            if(confirm("Bạn có chắc chắn muốn xóa License này không?")) {
+            if(confirm("Xóa bản quyền này?")) {
                 await fetch(`/api/delete-license/${id}`, { method: 'DELETE' });
                 loadLicenses();
             }
